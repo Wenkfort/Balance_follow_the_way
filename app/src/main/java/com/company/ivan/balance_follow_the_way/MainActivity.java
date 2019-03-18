@@ -17,7 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
-    private final static int REQUEST_ENABLE_BT = 1;
+    private final static int REQUEST_ENABLE_BT = 0;
     private static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     public BluetoothAdapter bluetoothAdapter = null;   //адаптер для бл.
@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private InputStream mmInStream = null;      //получение данных
     private BluetoothSocket btSocket = null;
     private Set<BluetoothDevice> pairedDevices = null;
+    private String TAG = "BTDevice";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
         BluetoothOnCreate();
     }
 
-    public void GetRoboInfo(){
+    public void GetRoboInfo(View view){
         if (!btSocket.isConnected()){
             return;
         }
@@ -45,22 +46,26 @@ public class MainActivity extends AppCompatActivity {
         byte [] bytes = (obj.toString() + "\0").getBytes();
         try{
             mmOutStream.write(bytes);
-            Log.d("send", "writeData was success");
+            Log.d(TAG, "writeData was success");
         }catch (Exception e){
-            Log.d("send", "Error occurred when sending data", e);
+            Log.d(TAG, "Error occurred when sending data", e);
         }
         //получение команды
     }
 
-    public void Connect(){
+    public void Connect(View view){
+        pairedDevices = bluetoothAdapter.getBondedDevices();
         if (!pairedDevices.isEmpty()){
+            Log.d(TAG, "search paired devices");
             for (BluetoothDevice device : pairedDevices){
-                if (device.getAddress() == "00:21:13:02:C1:31"){
-                    Log.d("btDevice", "device is founded");
+                Log.d(TAG, "name:" + device.getName() + ", adress:" + device.getAddress());
+                if (device.getName().contentEquals("HC-05") || device.getAddress() == "00:21:13:02:C1:31"){
+                    Log.d(TAG, "device is founded");
                     ConnectThread(device);
                 }
             }
         }
+        else Log.d(TAG, "paired devices is empty");
     }
 
     OutputStream tmpOut = null;
@@ -77,24 +82,23 @@ public class MainActivity extends AppCompatActivity {
                 mmOutStream = tmpOut;
                 mmInStream = tmpIn;
             } catch (IOException e){
-                Log.d("1", "1");
+                Log.d(TAG, "1");
             }
         } catch (Exception e){
-            Log.d("1", "1");
+            Log.d(TAG, "1");
         }
     }
 
     private void BluetoothOnCreate(){
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (bluetoothAdapter == null){
-            //device doesn't support Bluetooth
-            return;
-        }
-        if (bluetoothAdapter.isEnabled()){
+        if (!bluetoothAdapter.isEnabled()){
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
-
-        pairedDevices = bluetoothAdapter.getBondedDevices();
+        if (bluetoothAdapter == null){
+            //device doesn't support Bluetooth
+            Log.d(TAG, "BTAdapter is null");
+            return;
+        }
     }
 }
