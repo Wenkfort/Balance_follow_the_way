@@ -10,16 +10,18 @@
         android:id="@+id/infoTable"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="68dp"
         android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.823" />
+        app:layout_constraintBottom_toTopOf="@+id/Button_Disconnect"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.02"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/Button_Connect"
-        android:layout_width="wrap_content"
+        android:layout_width="70dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
@@ -30,27 +32,13 @@
 
     <Button
         android:id="@+id/Button_Disconnect"
-        android:layout_width="wrap_content"
+        android:layout_width="70dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginBottom="16dp"
         android:text="Disconnect"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/button_getInfo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="16dp"
-        android:onClick="GetRoboInfo"
-        android:text="getInfo"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/Button_Connect"
-        app:layout_constraintHorizontal_bias="0.28"
-        app:layout_constraintStart_toEndOf="@+id/Button_Disconnect" />
 
     <ImageView
         android:id="@+id/imageView"
@@ -64,5 +52,64 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/ic_launcher_background" />
+
+    <Button
+        android:id="@+id/Forward"
+        android:layout_width="66dp"
+        android:layout_height="37dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="16dp"
+        android:onClick="MoveForward"
+        android:text="Forw"
+        app:layout_constraintBottom_toTopOf="@+id/stop"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/clr"
+        android:layout_width="66dp"
+        android:layout_height="37dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginBottom="8dp"
+        android:onClick="Clear"
+        android:text="clr"
+        app:layout_constraintBottom_toTopOf="@+id/infoTable"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/left"
+        android:layout_width="66dp"
+        android:layout_height="37dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="92dp"
+        android:onClick="turnLeft"
+        android:text="left"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/Forward" />
+
+    <Button
+        android:id="@+id/right"
+        android:layout_width="66dp"
+        android:layout_height="37dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="92dp"
+        android:onClick="turnright"
+        android:text="right"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/Forward" />
+
+    <Button
+        android:id="@+id/stop"
+        android:layout_width="66dp"
+        android:layout_height="41dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="36dp"
+        android:onClick="stop"
+        android:text="stop"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.487"
+        app:layout_constraintStart_toStartOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

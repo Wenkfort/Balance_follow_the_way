@@ -27,6 +27,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
 import org.json.JSONObject;
@@ -48,6 +50,9 @@ public class MainActivity extends AppCompatActivity {
     private Canvas tempCanvas;
     private android.os.Handler handler;
 
+    private Timer myTimer;
+    private TimerTask myTimerTask;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,8 +64,8 @@ public class MainActivity extends AppCompatActivity {
         myBitmap = Bitmap.createBitmap(344, 337, Bitmap.Config.RGB_565);
         tempCanvas = new Canvas(myBitmap);
 
-        makeHandler();  //Handler must be here
-        draw(80, 80);
+        draw(170, 170, Color.RED);
+        makeHandler();
         BluetoothOnCreate();
     }
 
@@ -70,18 +75,18 @@ public class MainActivity extends AppCompatActivity {
           public void handleMessage(Message inptMsg){
               try {
                   Log.d(TAG, "something is happening");
-                  //infoTable.setText(inptMsg.obj.toString());
-                  //Log.d(TAG, inptMsg.obj.toString());
+                  coordinates coord = (coordinates) inptMsg.obj;
+                  final int K = 100;
+                  infoTable.setText("x = "+ Math.round(coord.x * K + 170) + ", y = " + Math.round(coord.y * K + 170) + ", angle = " + Math.round(coord.angle * K));
+                  draw(Math.round(coord.x * K + 170), Math.round(coord.y * K + 170));
               } catch(Exception e){
                   Log.d(TAG, "something is happening");
-                  //Log.d(TAG, inptMsg.obj.toString());
-                  //Log.d(TAG, "can't show you data");
               }
           }
         };
     }
 
-    public void GetRoboInfo(View view){
+    public void GetRoboInfo(){
         if (!btSocket.isConnected()){
             return;
         }
@@ -122,9 +127,19 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "Creating of socket");
             try {
                 btSocket.connect();
-                Log.d(TAG, "device was connected");
                 btConnection = new BluetoothConnection(btSocket, handler);
                 btConnection.start();
+                Log.d(TAG, "device was connected");
+
+                myTimerTask = new TimerTask() {
+                    @Override
+                    public void run() {
+                        GetRoboInfo();
+                    }
+                };
+                myTimer = new Timer();
+                myTimer.schedule(myTimerTask, 1000, 1000);
+                Log.d(TAG, "Timer was created");
             } catch (IOException e){
                 infoTable.setText("connection was failed");
                 Log.d(TAG, "connection was failed");
@@ -147,14 +162,127 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void draw(int x, int y){
+    private void draw(int x, int y, int color){
             try{
             Paint p = new Paint();
-            p.setColor(Color.BLUE);
-            tempCanvas.drawCircle(x, y, 1, p);
+            p.setColor(color);
+            tempCanvas.drawCircle(x, y, 2, p);
             myImageView.setImageDrawable(new BitmapDrawable(getResources(), myBitmap));
         } catch(Exception e){
             Log.d(TAG, e.getMessage());
+        }
+    }
+
+    private void draw(int x, int y){
+        try{
+            Paint p = new Paint();
+            p.setColor(Color.WHITE);
+            tempCanvas.drawCircle(x, y, 2, p);
+            myImageView.setImageDrawable(new BitmapDrawable(getResources(), myBitmap));
+        } catch(Exception e){
+            Log.d(TAG, e.getMessage());
+        }
+    }
+
+    public void MoveForward(View view) {
+        if (!btSocket.isConnected()){
+            return;
+        }
+        //Отправка команды
+        JSONObject obj = new JSONObject();
+        try{
+            obj.put("a", new Float(0.05));
+        }catch (Exception e){}
+        byte [] bytes = (obj.toString()).getBytes();
+        try{
+            Log.d(TAG, "Trying to write this data: " + obj.toString());
+            btConnection.write(bytes);
+            Log.d(TAG, "writeData was success");
+        }catch (Exception e){
+            Log.d(TAG, "Error occurred when sending data", e);
+        }
+    }
+
+    public void turnLeft(View view) {
+        if (!btSocket.isConnected()){
+            return;
+        }
+        //Отправка команды
+        JSONObject obj = new JSONObject();
+        try{
+            obj.put("y", new Integer(200));
+        }catch (Exception e){}
+        byte [] bytes = (obj.toString()).getBytes();
+        try{
+            Log.d(TAG, "Trying to write this data: " + obj.toString());
+            btConnection.write(bytes);
+            Log.d(TAG, "writeData was success");
+        }catch (Exception e){
+            Log.d(TAG, "Error occurred when sending data", e);
+        }
+    }
+
+    public void turnright(View view) {
+        if (!btSocket.isConnected()){
+            return;
+        }
+        //Отправка команды
+        JSONObject obj = new JSONObject();
+        try{
+            obj.put("y", new Integer(-200));
+        }catch (Exception e){}
+        byte [] bytes = (obj.toString()).getBytes();
+        try{
+            Log.d(TAG, "Trying to write this data: " + obj.toString());
+            btConnection.write(bytes);
+            Log.d(TAG, "writeData was success");
+        }catch (Exception e){
+            Log.d(TAG, "Error occurred when sending data", e);
+        }
+    }
+
+    public void stop(View view) {
+        if (!btSocket.isConnected()){
+            return;
+        }
+        //Отправка команды
+        JSONObject obj = new JSONObject();
+        try{
+            obj.put("a", new Integer(0));
+            obj.put("y", new Integer(0));
+            obj.put("p", new Integer(0));
+        }catch (Exception e){}
+        byte [] bytes = (obj.toString()).getBytes();
+        try{
+            Log.d(TAG, "Trying to write this data: " + obj.toString());
+            btConnection.write(bytes);
+            Log.d(TAG, "writeData was success");
+        }catch (Exception e){
+            Log.d(TAG, "Error occurred when sending data", e);
+        }
+    }
+
+    public void Clear(View view) {
+        myBitmap = Bitmap.createBitmap(344, 337, Bitmap.Config.RGB_565);
+        tempCanvas = new Canvas(myBitmap);
+
+        draw(170, 170, Color.RED);
+
+        if (!btSocket.isConnected()){
+            return;
+        }
+        //Отправка команды
+        JSONObject obj = new JSONObject();
+        try{
+            obj.put("g", new Integer(0));
+        }catch (Exception e){}
+        byte [] bytes = (obj.toString()).getBytes();
+        try{
+            Log.d(TAG, "Trying to write this data: " + obj.toString());
+            btConnection.write(bytes);
+            Log.d(TAG, "writeData was success");
+        }catch (Exception e){
+            Log.d(TAG, "Error occurred when sending data", e);
         }
     }
 }

@@ -8,8 +8,6 @@ import java.io.OutputStream;
 import java.io.InputStream;
 import android.util.Log;
 
-import org.json.JSONObject;
-
 public class BluetoothConnection extends Thread{
     private static String TAG = "BTDevice";
     private android.os.Handler handler; // handler that gets info from Bluetooth service
@@ -17,14 +15,6 @@ public class BluetoothConnection extends Thread{
     private final InputStream mmInStream;
     private final OutputStream mmOutStream;
     private byte[] mmBuffer; // mmBuffer store for the stream
-
-    private interface MessageConstants {
-        public static final int MESSAGE_READ = 0;
-        public static final int MESSAGE_WRITE = 1;
-        public static final int MESSAGE_TOAST = 2;
-
-        // ... (Add other message types here as needed.)
-    }
 
     public BluetoothConnection(BluetoothSocket socket, android.os.Handler handler) {
         mmSocket = socket;
@@ -67,9 +57,9 @@ public class BluetoothConnection extends Thread{
                     else if (mmBuffer[i] == '}'){
                         message += "}";
                         // Send the obtained bytes to the UI activity.
-                        Message readMsg = handler.obtainMessage();
+                        Message readMsg = handler.obtainMessage(1, new coordinates(message));
                         readMsg.sendToTarget();
-                        Log.d(TAG, String.format("some data was received, size is: " + numBytes + " and message is: " + message));
+                        Log.d(TAG, String.format("final message is: " + message));
                     }
                     else {
                         message += (char) mmBuffer[i]; //Byte.toString(mmBuffer[i]);
@@ -87,26 +77,8 @@ public class BluetoothConnection extends Thread{
     public void write(byte[] bytes) {
         try {
             mmOutStream.write(bytes);
-
-            // Share the sent message with the UI activity.
-            /*
-            Message writtenMsg = handler.obtainMessage(
-                    MessageConstants.MESSAGE_WRITE, -1, -1, mmBuffer);
-            writtenMsg.sendToTarget();
-            */
         } catch (IOException e) {
             Log.e(TAG, "Error occurred when sending data", e);
-
-            // Send a failure message back to the activity.
-            /*
-            Message writeErrorMsg =
-                    handler.obtainMessage(MessageConstants.MESSAGE_TOAST);
-            Bundle bundle = new Bundle();
-            bundle.putString("toast",
-                    "Couldn't send data to the other device");
-            writeErrorMsg.setData(bundle);
-            handler.sendMessage(writeErrorMsg);
-            */
         }
     }
 
